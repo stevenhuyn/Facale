@@ -9,7 +9,7 @@ export class LandingPage extends LitElement {
   backend: "Fetching" | "Up" | "Down" = "Fetching";
 
   @property({ type: Number })
-  progress: number = 0;
+  progress: number = 5;
 
   #interval: NodeJS.Timer | null = null;
 

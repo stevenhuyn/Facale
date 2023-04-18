@@ -48,7 +48,7 @@ export class NamePage extends LitElement {
   }
 
   get submitName() {
-    return router.urlForPath(`/multi?` + this.queryParams);
+    return router.urlForPath(`/game?` + this.queryParams);
   }
 
   render() {
