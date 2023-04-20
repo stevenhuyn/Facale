@@ -9,19 +9,19 @@ export class LandingPage extends LitElement {
   backend: "Fetching" | "Up" | "Down" = "Fetching";
 
   @property({ type: Number })
-  progress: number = 5;
+  progress: number = 1;
 
   #interval: NodeJS.Timer | null = null;
 
+  #counter: number = 0;
   connectedCallback(): void {
     super.connectedCallback();
     this.checkBackend();
+    this.#counter = 0;
     this.#interval = setInterval(() => {
-      this.progress += 1;
-
-      if (this.progress >= 99) {
-        this.#interval && clearInterval(this.#interval);
-      }
+      this.#counter++;
+      //prettier-ignore
+      this.progress = (-500 / ((this.#counter + 5))) + 100;
     }, 50);
   }
 
