@@ -269,7 +269,7 @@ export class GamePage extends LitElement {
       flex-grow: 1;
       flex-direction: column;
 
-      place-content: end;
+      place-content: start;
       align-items: center;
 
       margin-bottom: 2em;
