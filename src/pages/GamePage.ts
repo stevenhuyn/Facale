@@ -5,7 +5,7 @@ import { map } from "lit/directives/map.js";
 import { DispatchEvent } from "../utility/Utility";
 import { ScenarioData, Scenario } from "../utility/Scenario";
 import { Router } from "@vaadin/router";
-import { Message } from "../utility/Api";
+import { BotMessage, Message } from "../utility/Api";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { GameService, ChatService } from "../services";
 
@@ -133,6 +133,18 @@ export class GamePage extends LitElement {
     );
   };
 
+  reactionFace(): string | null {
+    const lastBotMessage = this.#ChatService.history
+      .filter((m) => m.type === "Bot")
+      .at(-1) as BotMessage;
+
+    if (lastBotMessage) {
+      return lastBotMessage.expression;
+    }
+
+    return null;
+  }
+
   resetGame = () => {
     this.setupRoom();
     this.#ChatService.reset();
@@ -144,6 +156,7 @@ export class GamePage extends LitElement {
     }
 
     const scenarioData = ScenarioData[this.#GameService.scenario];
+    const expression = this.reactionFace();
 
     return html`
       <div class="row-container">
@@ -163,13 +176,10 @@ export class GamePage extends LitElement {
             this.#ChatService.history.filter((message) => message.content),
             (message: Message) => {
               const isUser = message.type === "User";
-              const expression = ifDefined(isUser ? null : message.expression);
-
               return html`<message-bubble
                 ?bot=${!isUser}
                 ?user=${isUser}
                 name=${ifDefined(isUser ? message.name : scenarioData.oppName)}
-                expression=${expression}
                 >${message.content}
               </message-bubble>`;
             }
@@ -178,6 +188,14 @@ export class GamePage extends LitElement {
       </div>
       <div class="row-container">
         ${this.#ChatService.endMessage ? html`<h3>${this.#ChatService.endMessage}</h3>` : null}
+      </div>
+      <div class="reaction-container">
+        ${expression
+          ? html`
+              <div class="opp-name">${scenarioData.oppName}</div>
+              <div class="opp-expression">${expression}</div>
+            `
+          : null}
       </div>
       <div class="input-container">
         <sl-input
@@ -245,10 +263,29 @@ export class GamePage extends LitElement {
       flex-grow: 1;
     }
 
-    .input-container {
+    .reaction-container {
       display: flex;
       align-self: stretch;
       flex-grow: 1;
+      flex-direction: column;
+
+      place-content: end;
+      align-items: center;
+
+      margin-bottom: 2em;
+    }
+
+    .reaction-container .opp-name {
+      font-size: var(--sl-font-size-x-large);
+    }
+
+    .reaction-container .opp-expression {
+      font-size: var(--sl-font-size-3x-large);
+    }
+
+    .input-container {
+      display: flex;
+      align-self: stretch;
 
       justify-content: center;
       align-items: flex-end;
