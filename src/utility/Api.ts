@@ -1,5 +1,9 @@
-import { BACKEND_BASE_URL } from "../config";
 import { Scenario } from "./Scenario";
+
+const BACKEND_BASE_URL =
+  window.location.host === "plakait.com"
+    ? new URL("https://api.plakait.com:3000/")
+    : new URL("http://localhost:7878/");
 
 export type BotMessage = {
   type: "Bot";
@@ -21,7 +25,7 @@ export const PostChat = async (
   game_id: string,
   name: string,
   content: string
-): Promise<Message[] | null> => {
+): Promise<Message[]> => {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -30,9 +34,14 @@ export const PostChat = async (
 
   const endpoint = new URL(`/chat/${game_id}`, BACKEND_BASE_URL);
   return fetch(endpoint, requestOptions)
-    .then((response) => response.json() as Promise<Message[]>)
+    .then((response) => {
+      if (response.ok) {
+        return response.json() as Promise<Message[]>;
+      }
+      throw Error("Failed Post message - Server returned a non 200 response");
+    })
     .catch(() => {
-      throw Error("Add message to backend failed");
+      throw Error("Post Chat Exception");
     });
 };
 
@@ -40,7 +49,7 @@ interface PostGameResponse {
   gameId: string;
   messages: Message[];
 }
-export const PostGame = async (scenario: Scenario): Promise<PostGameResponse | null> => {
+export const PostGame = async (scenario: Scenario): Promise<PostGameResponse> => {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -49,13 +58,18 @@ export const PostGame = async (scenario: Scenario): Promise<PostGameResponse | n
 
   const endpoint = new URL("/game", BACKEND_BASE_URL);
   return fetch(endpoint, requestOptions)
-    .then((response) => response.json() as Promise<PostGameResponse>)
+    .then((response) => {
+      if (response.ok) {
+        return response.json() as Promise<PostGameResponse>;
+      }
+      throw Error("Failed to initiate game - Server returned a non 200 response");
+    })
     .catch(() => {
-      throw Error("Failed to initiate room");
+      throw Error("Post Game Exception");
     });
 };
 
-export const GetHistory = async (game_id: string): Promise<Message[] | null> => {
+export const GetHistory = async (game_id: string): Promise<Message[]> => {
   const requestOptions = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -63,13 +77,18 @@ export const GetHistory = async (game_id: string): Promise<Message[] | null> => 
 
   const endpoint = new URL(`/history/${game_id}`, BACKEND_BASE_URL);
   return fetch(endpoint, requestOptions)
-    .then((response) => response.json() as Promise<Message[]>)
+    .then((response) => {
+      if (response.ok) {
+        return response.json() as Promise<Message[]>;
+      }
+      throw Error("Failed to Get game history - Server returned a non 200 response");
+    })
     .catch(() => {
-      throw Error("Failed to get messages");
+      throw Error("Get History Exception");
     });
 };
 
-export const GetRoot = async (): Promise<string | null> => {
+export const GetRoot = async (): Promise<string> => {
   const requestOptions = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -78,10 +97,12 @@ export const GetRoot = async (): Promise<string | null> => {
   const endpoint = new URL(`/`, BACKEND_BASE_URL);
   return fetch(endpoint, requestOptions)
     .then((response) => {
-      console.log(response);
-      return response.text();
+      if (response.ok) {
+        return response.text();
+      }
+      throw Error("Failed to Get Root - Server returned a non 200 response");
     })
     .catch(() => {
-      throw Error("Failed to get messages");
+      throw Error("Get Root Exception");
     });
 };

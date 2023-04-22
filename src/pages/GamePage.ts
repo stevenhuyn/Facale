@@ -1,6 +1,5 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ChatService } from "../services/ChatService";
 import { live } from "lit/directives/live.js";
 import { map } from "lit/directives/map.js";
 import { DispatchEvent } from "../utility/Utility";
@@ -8,36 +7,20 @@ import { ScenarioData, Scenario } from "../utility/Scenario";
 import { Router } from "@vaadin/router";
 import { Message } from "../utility/Api";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { GameService, ChatService } from "../services";
 
 @customElement("game-page")
 export class GamePage extends LitElement {
   readonly #ChatService: ChatService;
-
-  @property({ type: Boolean })
-  loaded: boolean = false;
-
-  @property({ type: String })
-  gameId: string | null = null;
+  readonly #GameService: GameService;
 
   @property({ type: String })
   chat: string = "";
 
-  @property({ type: String })
-  name: string = "";
-
-  #scenario: Scenario | null = null;
-
   constructor() {
     super();
     this.#ChatService = ChatService.Instance();
-  }
-
-  get queryParams(): string {
-    const params = new URLSearchParams({});
-    this.name && params.set("name", this.name);
-    this.gameId && params.set("gameId", this.gameId);
-    this.#scenario && params.set("scenario", this.#scenario);
-    return params.toString();
+    this.#GameService = GameService.Instance();
   }
 
   changeChat = (event: Event) => {
@@ -50,8 +33,14 @@ export class GamePage extends LitElement {
 
     if (key === "Enter" && this.chat.trim()) {
       event.preventDefault();
-      this.#scenario === "ToiletRun" && this.delayHistory();
-      this.gameId && this.#ChatService.addMessage(this.gameId, this.name, this.chat.trim());
+      this.#GameService.scenario === "ToiletRun" && this.delayHistory();
+      if (this.#GameService.gameId && this.#GameService.name) {
+        this.#ChatService.addMessage(
+          this.#GameService.gameId,
+          this.#GameService.name,
+          this.chat.trim()
+        );
+      }
 
       this.chat = "";
     }
@@ -69,8 +58,8 @@ export class GamePage extends LitElement {
 
   // Debounced history getter/delayer
   private async getHistory() {
-    this.#scenario === "ToiletRun" && this.delayHistory();
-    this.gameId && (await this.#ChatService.getHistory(this.gameId));
+    this.#GameService.scenario === "ToiletRun" && this.delayHistory();
+    this.#GameService.gameId && (await this.#ChatService.getHistory(this.#GameService.gameId));
   }
 
   #timerInterval: number | null = null;
@@ -82,7 +71,7 @@ export class GamePage extends LitElement {
 
     window.setTimeout(() => {
       this.#timerInterval = window.setInterval(async () => {
-        if (this.gameId) await this.#ChatService.getHistory(this.gameId);
+        if (this.#GameService.gameId) await this.#ChatService.getHistory(this.#GameService.gameId);
       }, 3000);
     });
   }
@@ -90,22 +79,7 @@ export class GamePage extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.#ChatService.reset();
-    const queryParams = new URLSearchParams(window.location.search);
-    this.gameId = queryParams.get("gameId");
-    this.#scenario = queryParams.get("scenario") as Scenario;
-
-    const name = queryParams.get("name");
-    if (!name || !this.#scenario) {
-      Router.go({
-        pathname: "/",
-        search: this.queryParams,
-      });
-
-      return;
-    }
-
-    this.name = name;
-    this.name = this.name.trim();
+    this.setupRoom();
 
     this.#ChatService.addEventListener(DispatchEvent.loading, () => this.requestUpdate());
     this.#ChatService.addEventListener(DispatchEvent.endMessage, () => this.requestUpdate());
@@ -113,8 +87,6 @@ export class GamePage extends LitElement {
       this.requestUpdate();
       this.#scrollToBottom();
     });
-
-    this.getRoom();
   }
 
   disconnectedCallback() {
@@ -122,40 +94,62 @@ export class GamePage extends LitElement {
     this.#timerInterval && window.clearInterval(this.#timerInterval);
   }
 
-  private async getRoom(): Promise<void> {
-    if (!this.gameId && this.#scenario) {
-      const gameId = await this.#ChatService.initGame(this.#scenario);
-      this.loaded = true;
-      this.gameId = gameId;
+  private async setupRoom(): Promise<void> {
+    // First check values in query params
+    const queryParams = new URLSearchParams(window.location.search);
+    // TODO: Represent states in a kind enum union?
+    if (queryParams.get("gameId")) {
+      this.#GameService.gameId = queryParams.get("gameId");
+    }
+
+    if (queryParams.get("scenario")) {
+      this.#GameService.scenario = queryParams.get("scenario") as Scenario;
+    }
+
+    if (queryParams.get("name")) {
+      this.#GameService.name = queryParams.get("name");
+    }
+
+    if (!this.#GameService.name || !this.#GameService.scenario) {
+      Router.go({
+        pathname: "/",
+        search: this.#GameService.queryParams,
+      });
+
+      return;
+    }
+
+    if (!this.#GameService.gameId) {
+      // Also sets the gameId in GameService (very bad coupling)
+      await this.#ChatService.initGame(this.#GameService.scenario);
     }
 
     await this.getHistory();
-    this.loaded = true;
   }
 
   copyGameLink = () => {
     navigator.clipboard.writeText(
-      `${new URL(window.location.href).origin}/name?` + this.queryParams
+      `${new URL(window.location.href).origin}/name?` + this.#GameService.queryParams
     );
   };
 
   resetGame = () => {
-    this.getRoom();
+    this.setupRoom();
     this.#ChatService.reset();
   };
 
   render() {
-    if (!this.#scenario) {
+    if (!this.#GameService.scenario) {
       return null;
     }
 
-    const scenarioData = ScenarioData[this.#scenario];
+    const scenarioData = ScenarioData[this.#GameService.scenario];
 
     return html`
       <div class="row-container">
         <h1>Plakait</h1>
       </div>
-      ${this.#scenario === "ToiletRun"
+      ${this.#GameService.scenario === "ToiletRun"
         ? html`<div class="row-container">
             <sl-button @click=${this.copyGameLink}>Copy Link</sl-button>
           </div>`

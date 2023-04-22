@@ -26,6 +26,6 @@ export const ScenarioData: { [key in Scenario]: ScenarioConfig } = {
     userName: "Multiple People",
     oppName: "Jared",
     introText:
-      "Mark need to go the the toilet. This MacDonald's toilet is closed, and you are now confronting the store manager Jared",
+      "One of yous needs to go - really badly. This MacDonald's toilet is closed, and you are now confronting the store manager Jared",
   },
 };

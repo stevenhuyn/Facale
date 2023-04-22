@@ -1,11 +1,20 @@
 import { BotMessage, GetHistory, Message, PostChat, PostGame } from "../utility/Api";
 import { Scenario } from "../utility/Scenario";
 import { DispatchEvent, DispatchEventType } from "../utility/Utility";
+import { GameService } from "./GameService";
 
 export class ChatService extends EventTarget {
   #history: Message[] = [];
   #loaded: boolean = false;
   #endMessage: string | null = null;
+
+  // This is very bad code design
+  readonly #GameService: GameService;
+
+  constructor() {
+    super();
+    this.#GameService = GameService.Instance();
+  }
 
   public get history() {
     return this.#history;
@@ -70,39 +79,31 @@ export class ChatService extends EventTarget {
     // TODO: Will this ever be a bottleneck
     this.history = [...this.history, message];
 
-    PostChat(gameid, name, content)
-      .then((response) => {
-        if (response) {
-          this.history = response;
-        } else {
-          this.endMessage = `404 returned from OpenAI`;
-        }
-      })
-      .catch((e: Error) => {
-        this.endMessage = e.message;
-      });
+    try {
+      this.history = await PostChat(gameid, name, content);
+    } catch {
+      this.endMessage = "Failed to add message - Server may be down";
+    }
   }
 
   public async getHistory(gameId: string): Promise<void> {
-    GetHistory(gameId).then((response) => {
-      if (response) {
-        this.history = response;
-        this.loaded = true;
-      }
-    });
+    try {
+      this.history = await GetHistory(gameId);
+      this.loaded = true;
+    } catch {
+      this.endMessage = "Failed to get messages - Server may be down";
+    }
   }
 
-  public async initGame(scenario: Scenario): Promise<string | null> {
-    return PostGame(scenario).then((response) => {
-      if (response) {
-        this.history = response.messages;
-        this.loaded = true;
-        return response.gameId;
-      } else {
-        this.endMessage = `Init room failed`;
-        return null;
-      }
-    });
+  public async initGame(scenario: Scenario): Promise<void> {
+    try {
+      const response = await PostGame(scenario);
+      this.history = response.messages;
+      this.#GameService.gameId = response.gameId;
+      this.loaded = true;
+    } catch {
+      this.endMessage = "Failed to initiate game - Server may be down";
+    }
   }
 
   public reset() {
@@ -111,6 +112,7 @@ export class ChatService extends EventTarget {
     this.loaded = false;
   }
 
+  // TODO: Make this method an interface/method to inherit or utility
   /** Custom event dispatcher */
   private dispatch(type: DispatchEventType, value?: unknown) {
     const event = new CustomEvent(type, { detail: value });

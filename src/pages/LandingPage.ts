@@ -21,7 +21,7 @@ export class LandingPage extends LitElement {
     this.#interval = setInterval(() => {
       this.#counter++;
       //prettier-ignore
-      this.progress = (-500 / ((this.#counter + 5))) + 100;
+      this.progress = (-5000 / ((this.#counter + 50))) + 100;
     }, 50);
   }
 

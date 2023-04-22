@@ -3,22 +3,28 @@ import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { router } from "../router";
 import { live } from "lit/directives/live.js";
+import { GameService } from "../services";
+import { Scenario } from "../utility/Scenario";
 
 @customElement("name-page")
 export class NamePage extends LitElement {
   @property({ type: String })
   name: string = "";
 
-  #scenario: string | null = null;
-  #gameId: string | null = null;
+  readonly #GameService: GameService;
+
+  constructor() {
+    super();
+    this.#GameService = GameService.Instance();
+  }
 
   connectedCallback(): void {
     super.connectedCallback();
     const queryParams = new URLSearchParams(window.location.search);
-    this.#scenario = queryParams.get("scenario");
-    this.#gameId = queryParams.get("gameId");
+    this.#GameService.scenario = queryParams.get("scenario") as Scenario;
+    this.#GameService.gameId = queryParams.get("gameId");
 
-    if (!this.#scenario) {
+    if (!this.#GameService.scenario) {
       Router.go("/");
     }
   }
@@ -34,21 +40,13 @@ export class NamePage extends LitElement {
     if (key === "Enter" && this.name.trim()) {
       Router.go({
         pathname: "/game?",
-        search: this.queryParams,
+        search: this.#GameService.queryParams,
       });
     }
   };
 
-  get queryParams(): string {
-    const params = new URLSearchParams({});
-    this.name && params.set("name", this.name);
-    this.#scenario && params.set("scenario", this.#scenario);
-    this.#gameId && params.set("gameId", this.#gameId);
-    return params.toString();
-  }
-
   get submitName() {
-    return router.urlForPath(`/game?` + this.queryParams);
+    return router.urlForPath(`/game?` + this.#GameService.queryParams);
   }
 
   render() {
