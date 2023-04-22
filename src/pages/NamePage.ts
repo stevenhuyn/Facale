@@ -36,8 +36,8 @@ export class NamePage extends LitElement {
 
   pressChat = (event: KeyboardEvent) => {
     const key = event.key;
-
     if (key === "Enter" && this.name.trim()) {
+      this.#GameService.name = this.name.trim();
       Router.go({
         pathname: "/game?",
         search: this.#GameService.queryParams,
@@ -46,6 +46,9 @@ export class NamePage extends LitElement {
   };
 
   get submitName() {
+    if (this.name.trim()) {
+      this.#GameService.name = this.name.trim();
+    }
     return router.urlForPath(`/game?` + this.#GameService.queryParams);
   }
 
