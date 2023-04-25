@@ -48,10 +48,10 @@ export class LandingPage extends LitElement {
             ?disabled=${this.backend !== "Up"}
             ?up=${this.backend === "Up"}
             ?down=${this.backend === "Down"}
-            href=${router.urlForPath("/game/?name=John&scenario=CarSale")}
-            variant="success"
+            href=${router.urlForPath("/game/?name=Jane&scenario=BadMil")}
+            variant="primary"
           >
-            Sleazy Car Salesman
+            Bad Mother In Law
           </sl-button>
         </nav>
         <nav>
@@ -59,10 +59,10 @@ export class LandingPage extends LitElement {
             ?disabled=${this.backend !== "Up"}
             ?up=${this.backend === "Up"}
             ?down=${this.backend === "Down"}
-            href=${router.urlForPath("/game/?name=Jane&scenario=BadMil")}
-            variant="primary"
+            href=${router.urlForPath("/game/?name=John&scenario=CarSale")}
+            variant="success"
           >
-            Bad Mother In Law
+            Sleazy Car Salesman
           </sl-button>
         </nav>
         <nav>
