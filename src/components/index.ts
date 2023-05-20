@@ -1,7 +1,7 @@
 export { MessageBubble } from "./MessageBubble";
 export { MessageList } from "./MessageList";
 
-// Shoelace Component Exporting
+// Shoelace Component Importing
 import "@shoelace-style/shoelace/dist/themes/dark.css";
 import "@shoelace-style/shoelace/dist/components/button/button.js";
 import "@shoelace-style/shoelace/dist/components/progress-bar/progress-bar.js";
