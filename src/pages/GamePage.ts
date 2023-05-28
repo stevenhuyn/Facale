@@ -159,56 +159,58 @@ export class GamePage extends LitElement {
     const expression = this.reactionFace();
 
     return html`
-      <div class="row-container">
-        <h1>Plakait</h1>
-      </div>
-      ${this.#GameService.scenario === "ToiletRun"
-        ? html`<div class="row-container">
-            <sl-button @click=${this.copyGameLink}>Copy Link</sl-button>
-          </div>`
-        : null}
-      <div class="row-container">
-        <h2>${scenarioData.introText}</h2>
-      </div>
-      <div class="container2">
-        <message-list>
-          ${map(
-            this.#ChatService.history.filter((message) => message.content),
-            (message: Message) => {
-              const isUser = message.type === "User";
-              return html`<message-bubble
-                ?bot=${!isUser}
-                ?user=${isUser}
-                name=${ifDefined(isUser ? message.name : scenarioData.oppName)}
-                >${message.content}
-              </message-bubble>`;
-            }
-          )}
-        </message-list>
-      </div>
-      <div class="row-container">
-        ${this.#ChatService.endMessage ? html`<h3>${this.#ChatService.endMessage}</h3>` : null}
-      </div>
-      <div class="reaction-container">
-        ${expression
-          ? html`
-              <div class="opp-name">${scenarioData.oppName}</div>
-              <div class="opp-expression">${expression}</div>
-            `
+      <div class="inner">
+        <div class="row-container">
+          <h1>Plakait</h1>
+        </div>
+        ${this.#GameService.scenario === "ToiletRun"
+          ? html`<div class="row-container">
+              <sl-button @click=${this.copyGameLink}>Copy Link</sl-button>
+            </div>`
           : null}
-      </div>
-      <div class="input-container">
-        <sl-input
-          size="large"
-          @input=${this.changeChat}
-          @keypress=${this.pressChat}
-          enterkeyhint="send"
-          .value=${live(this.chat)}
-          ?disabled=${!this.#ChatService.loaded}
-          placeholder="Action or dialogue"
-        >
-          <sl-spinner ?completed=${this.#ChatService.loaded} slot="suffix"></sl-spinner>
-        </sl-input>
+        <div class="row-container">
+          <h2>${scenarioData.introText}</h2>
+        </div>
+        <div class="container2">
+          <message-list>
+            ${map(
+              this.#ChatService.history.filter((message) => message.content),
+              (message: Message) => {
+                const isUser = message.type === "User";
+                return html`<message-bubble
+                  ?bot=${!isUser}
+                  ?user=${isUser}
+                  name=${ifDefined(isUser ? message.name : scenarioData.oppName)}
+                  >${message.content}
+                </message-bubble>`;
+              }
+            )}
+          </message-list>
+        </div>
+        <div class="row-container">
+          ${this.#ChatService.endMessage ? html`<h3>${this.#ChatService.endMessage}</h3>` : null}
+        </div>
+        <div class="reaction-container">
+          ${expression
+            ? html`
+                <div class="opp-name">${scenarioData.oppName}</div>
+                <div class="opp-expression">${expression}</div>
+              `
+            : null}
+        </div>
+        <div class="input-container">
+          <sl-input
+            size="large"
+            @input=${this.changeChat}
+            @keypress=${this.pressChat}
+            enterkeyhint="send"
+            .value=${live(this.chat)}
+            ?disabled=${!this.#ChatService.loaded}
+            placeholder="Action/Dialogue"
+          >
+            <sl-spinner ?completed=${this.#ChatService.loaded} slot="suffix"></sl-spinner>
+          </sl-input>
+        </div>
       </div>
     `;
   }
@@ -220,12 +222,7 @@ export class GamePage extends LitElement {
       font-weight: var(--sl-font-weight-normal);
 
       max-width: 800px;
-
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-
-      padding: 0 1em;
+      min-height: 100%;
     }
 
     h1 {
@@ -239,6 +236,15 @@ export class GamePage extends LitElement {
       display: flex;
       justify-content: center;
       text-align: center;
+    }
+
+    .inner {
+      padding: 0 1em;
+
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     sl-input {

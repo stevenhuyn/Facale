@@ -35,7 +35,7 @@ export class MessageBubble extends LitElement {
     }
 
     .bubble {
-      min-width: 1.3em;
+      min-width: 1em;
       padding: 8px 12px;
       margin-bottom: 0.5em;
       border-radius: 25px;
