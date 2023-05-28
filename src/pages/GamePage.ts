@@ -200,7 +200,7 @@ export class GamePage extends LitElement {
         </div>
         <div class="input-container">
           <sl-input
-            size="large"
+            size="medium"
             @input=${this.changeChat}
             @keypress=${this.pressChat}
             enterkeyhint="send"
