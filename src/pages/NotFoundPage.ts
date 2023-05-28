@@ -9,8 +9,6 @@ export class NotFoundPage extends LitElement {
 
   static styles = css`
     :host {
-      max-width: 900px;
-      min-width: 600px;
       margin: 0 auto;
       padding: 2rem;
       text-align: center;
