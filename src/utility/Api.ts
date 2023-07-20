@@ -3,7 +3,7 @@ import { Scenario } from "./Scenario";
 const BACKEND_BASE_URL =
   window.location.host === "plakait.com"
     ? new URL("https://plakait-backend.onrender.com/")
-    : new URL("http://localhost:7878/");
+    : new URL("http://localhost:8000/");
 
 export type BotMessage = {
   type: "Bot";
