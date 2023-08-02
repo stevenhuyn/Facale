@@ -110,6 +110,7 @@ export class ChatService extends EventTarget {
     this.history = [];
     this.endMessage = null;
     this.loaded = false;
+    this.#GameService.gameId = null;
   }
 
   // TODO: Make this method an interface/method to inherit or utility
