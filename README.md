@@ -6,7 +6,7 @@ Using Vite, ChatGPT and Lit Web Components.
 
 ![Example UI showing a completed game](./media/example-game.png)
 
-## Further things to do?
+## ~~Further things to do?~~ Kinda done
 
 - [x] Rewind time and retry message upon JSON.parse error (Done on backend)
 - [x] Add other scenarios (more than 2 person scenario which mid game bosses)
