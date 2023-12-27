@@ -1,5 +1,5 @@
-import { ChatCompletionRequestMessageRoleEnum } from "openai";
-export const MessageRole = ChatCompletionRequestMessageRoleEnum;
+import ChatCompletionRole from "openai";
+export const MessageRole = ChatCompletionRole;
 
 export type DispatchEventType = (typeof DispatchEvent)[keyof typeof DispatchEvent];
 export const DispatchEvent = {
