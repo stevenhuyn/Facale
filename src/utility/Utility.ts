@@ -1,6 +1,3 @@
-import ChatCompletionRole from "openai";
-export const MessageRole = ChatCompletionRole;
-
 export type DispatchEventType = (typeof DispatchEvent)[keyof typeof DispatchEvent];
 export const DispatchEvent = {
   loading: "plakait-loading",
