@@ -1,14 +1,8 @@
 import { Scenario } from "./Scenario";
 
-console.log(window.location.host);
-console.log(window.location.host.includes("plakait"));
-
-const BACKEND_BASE_URL =
-  window.location.host.includes("plakait")
-    ? new URL("https://plakait-backend-production.up.railway.app/")
-    : new URL("http://localhost:8000/");
-
-console.log("BACKEND_BASE_URL:", BACKEND_BASE_URL);
+const BACKEND_BASE_URL = window.location.host.includes("plakait")
+  ? new URL("https://plakait-backend-production.up.railway.app/")
+  : new URL("http://localhost:8000/");
 
 export type BotMessage = {
   type: "Bot";
@@ -54,7 +48,9 @@ interface PostGameResponse {
   gameId: string;
   messages: Message[];
 }
-export const PostGame = async (scenario: Scenario): Promise<PostGameResponse> => {
+export const PostGame = async (
+  scenario: Scenario
+): Promise<PostGameResponse> => {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -67,7 +63,9 @@ export const PostGame = async (scenario: Scenario): Promise<PostGameResponse> =>
       if (response.ok) {
         return response.json() as Promise<PostGameResponse>;
       }
-      throw Error("Failed to initiate game - Server returned a non 200 response");
+      throw Error(
+        "Failed to initiate game - Server returned a non 200 response"
+      );
     })
     .catch(() => {
       throw Error("Post Game Exception");
@@ -86,7 +84,9 @@ export const GetHistory = async (game_id: string): Promise<Message[]> => {
       if (response.ok) {
         return response.json() as Promise<Message[]>;
       }
-      throw Error("Failed to Get game history - Server returned a non 200 response");
+      throw Error(
+        "Failed to Get game history - Server returned a non 200 response"
+      );
     })
     .catch(() => {
       throw Error("Get History Exception");
