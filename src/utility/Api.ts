@@ -8,7 +8,7 @@ const BACKEND_BASE_URL =
     ? new URL("https://plakait-backend-production.up.railway.app/")
     : new URL("http://localhost:8000/");
 
-console.log("BACKEND_BASE_URL", BACKEND_BASE_URL);
+console.log("BACKEND_BASE_URL:", BACKEND_BASE_URL);
 
 export type BotMessage = {
   type: "Bot";
