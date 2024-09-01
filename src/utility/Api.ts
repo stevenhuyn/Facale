@@ -1,7 +1,7 @@
 import { Scenario } from "./Scenario";
 
 const BACKEND_BASE_URL = window.location.host.includes("plakait")
-  ? new URL("https://plakait-backend-production.up.railway.app/")
+  ? new URL("https://api.plakait.stevenhuyn.com")
   : new URL("http://localhost:8000/");
 
 export type BotMessage = {
